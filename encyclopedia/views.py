@@ -2,38 +2,51 @@ from django.shortcuts import render, HttpResponse, redirect, HttpResponseRedirec
 from . import util
 import re
 from django import forms
+import random
 
 # request a list of entries
 li = util.list_entries()
 
+# entry form class
 class NewEntry(forms.Form):
     e_title = forms.CharField(label='', min_length='1', max_length='100', widget=forms.TextInput(attrs={'placeholder': 'Title', 'id':'e_title'}))
     e_content = forms.CharField(label='', widget=forms.Textarea(attrs={"rows":"5", 'cols':'10', 'placeholder': 'Entry text', 'id':'e_content'}))
 
 
-# main page
+
+# view for the main page
 def index(request):
     return render(request, "encyclopedia/index.html", {
         "entries": util.list_entries()
     })
 
 
-# entries
+# view for entries
 def titles(request, title):
-
-    # getting entry data by title
-    entry = util.get_entry(title)
-
-    # check if given title is in that list and if yes render appropriate html
-    if title in util.list_entries():
-        return render(request, "encyclopedia/titles.html", {
-            'title' : title,
-            'entry' : entry
+    # if user wants to edit
+    if request.method == 'POST':
+        # get title of the entry
+        edit_entry = request.POST.get('entry')
+        # redirect to edit page
+        return render(request, 'encyclopedia/edit.html', {
+            'edit' : edit_entry
         })
+    
     else:
-        return HttpResponseRedirect(f'{title}')
+        # getting entry data by title
+        entry = util.get_entry(title)
+
+        # check if given title is in that list and if yes render appropriate html
+        if title in util.list_entries():
+            return render(request, "encyclopedia/titles.html", {
+                'title' : title,
+                'entry' : entry
+            })
+        else:
+            return HttpResponseRedirect(f'{title}')
     
 
+# view for search
 def search(request):
     if request.method == 'POST':
         # get users iput
@@ -61,7 +74,7 @@ def search(request):
     
 
     
-
+# view for the new page
 def new(request):
     # loads the page
     if request.method == 'GET':
@@ -93,4 +106,28 @@ def new(request):
         
     
 
-    
+# view for random page   
+def random_page(entry):
+    # pick random entry
+    r_entry = random.choice(util.list_entries())
+    # returns page of the entry
+    return HttpResponseRedirect(f'/wiki/{r_entry}')
+
+# creating page for editing
+def edit(request):
+    if request.method == "POST":
+        # get entry title
+        entry = request.POST.get('entry')
+        # get content
+        content = util.get_entry(entry)
+        # if user wants to edit
+        form = NewEntry({
+            'e_title' : (f'{entry}'),
+            'e_content' : (f'{content}')
+        })
+
+        return render(request, 'encyclopedia/edit.html', {
+            'entry' : entry,
+            'content' : content,
+            'form' : form
+        })
