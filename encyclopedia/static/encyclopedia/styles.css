@@ -36,3 +36,30 @@ textarea {
 .sidebar h2 {
     margin-top: 5px;
 }
+
+#new-form {
+    text-align: center;
+    display: table;
+    width: 100%;
+}
+
+#e_title {
+    margin-bottom: 10px;
+    width: 80%;
+}
+
+#e_content {
+    margin-bottom: 10px;
+    max-height: 500px;
+}
+
+.buttons {
+    width: 150px;
+    border-radius: 3px;
+    border: 0.5px solid gray;
+    background-color: aliceblue;
+}
+
+.buttons:hover{
+    background-color: rgb(219, 225, 229);
+}
